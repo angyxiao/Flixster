@@ -2,6 +2,8 @@ package peapod.angela.flixster;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -36,6 +38,10 @@ public class MovieListActivity extends AppCompatActivity {
     String posterSize;
     // the list of currently playing movies
     ArrayList<Movie> movies;
+    // the recycler view
+    RecyclerView rvMovies;
+    // the adapter wired to the recycler view
+     MovieAdapter adapter;
 
 
     @Override
@@ -46,6 +52,14 @@ public class MovieListActivity extends AppCompatActivity {
         client = new AsyncHttpClient();
         // initialize the list of movies
         movies = new ArrayList<>();
+        // initialize the adapter -- movies array CANNOT be reinitialized after this point
+        adapter = new MovieAdapter(movies);
+
+        // resolve the recycler view and connect a layout manager and the adapter
+        rvMovies = (RecyclerView) findViewById(R.id.rvMovies);
+        rvMovies.setLayoutManager(new LinearLayoutManager(this));
+        rvMovies.setAdapter(adapter);
+
         // get the configuration in app creation
         getConfiguration();
     }
@@ -68,6 +82,8 @@ public class MovieListActivity extends AppCompatActivity {
                     for (int i = 0; i < results.length(); i++) {
                         Movie movie = new Movie(results.getJSONObject(i));
                         movies.add(movie);
+                        // notify adapter that a row was added
+                        adapter.notifyItemInserted(movies.size() - 1);
                     }
                     Log.i(TAG, String.format("Loaded %s movies", results.length()));
                 } catch (JSONException e) {
