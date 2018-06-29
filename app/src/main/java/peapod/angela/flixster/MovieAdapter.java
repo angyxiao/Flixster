@@ -10,23 +10,37 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
+import peapod.angela.flixster.models.Config;
 import peapod.angela.flixster.models.Movie;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
 
     // list of movies
     ArrayList<Movie> movies;
+    // config needed for image urls
+    Config config;
+    // context
+    Context context;
 
     // initialize with list
     public MovieAdapter(ArrayList<Movie> movies) {
         this.movies = movies;
     }
 
+    public Config getConfig() {
+        return config;
+    }
+
+    public void setConfig(Config config) {
+        this.config = config;
+    }
+
     // creates and inflates a new view
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // get the context and create the inflater
-        Context context = parent.getContext();
+        context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
         // create the view using the item_movie layout
         View movieView = inflater.inflate(R.layout.item_movie, parent, false);
@@ -43,7 +57,16 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
         holder.tvTitle.setText(movie.getTitle());
         holder.tvOverview.setText(movie.getOverview());
 
-        // TODO - set image using Glide
+        // build url for poster image
+        String imageUrl = config.getImageUrl(config.getPosterSize(), movie.getPosterPath());
+
+        // load image using glide
+        GlideApp.with(context)
+                .load(imageUrl)
+                .transform(new RoundedCornersTransformation(21, 0))
+                .placeholder(R.drawable.flicks_backdrop_placeholder)
+                .error(R.drawable.flicks_backdrop_placeholder)
+                .into(holder.ivPosterImage);
     }
 
     // returns the total number of items in the list
